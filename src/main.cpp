@@ -17,22 +17,24 @@ OtherUtils utils;
 // Setup
 void setup()
 {
+    // Initialize Serial: setup serial communication
     Serial.begin(115200);
     Wire.begin();
     Wire.setClock(400000);
 
-    // Init sensors
+    // Initialize WIFI & Sensors
     sensor.begin();
-
-    // Init remote and timer
     remote.begin();
+
+    // Set up secondary periodic tasks
     ticker.attach(1, []()
-                  { utils.taskMaster(); }); // Every second
+                  { utils.taskMaster(sensor.readTemperature(), sensor.readHeartBeat()); });
 }
 
-// Main Loop
+// Main Loop: non-delaying loop
 void loop()
 {
+    // Set current sensor state : This should be called periodically to update the sensor state
     sensorState.setState(
         sensor.readTemperature(),
         sensor.readHeartBeat());

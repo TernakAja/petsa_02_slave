@@ -1,11 +1,8 @@
 Import("env")
+import os
 
 def before_upload(source, target, env):
-    print("Erasing entire flash before upload...")
-    # Sisipkan perintah erase_flash
-    env.Replace(
-        UPLOADCMD='"$PYTHONEXE" "$UPLOADER" $UPLOADFLAGS erase_flash && '
-                  '"$PYTHONEXE" "$UPLOADER" $UPLOADFLAGS $SOURCE"'
-    )
+    print("Erasing flash before upload...")
+    os.system("esptool.py --port {} erase_flash".format(env['UPLOAD_PORT']))
 
 env.AddPreAction("upload", before_upload)

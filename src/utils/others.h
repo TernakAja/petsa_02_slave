@@ -34,11 +34,8 @@ public:
         return int((voltage - minVolt) / (maxVolt - minVolt) * 100);
     }
 
-    void taskMaster()
+    void taskMaster(float temperature, float bpm)
     {
-        float temperature = sensorState.getTemperature();
-        float bpm = sensorState.getBPM();
-
         float batteryVolt = readBatteryVoltage();
         int batteryPercent = batteryPercentage(batteryVolt);
 
@@ -48,7 +45,5 @@ public:
             Serial.printf("Heart Rate: %.2f BPM\n", bpm);
         }
         Serial.printf("Battery: %.2f V (%d%%)\n", batteryVolt, batteryPercent);
-
-        remote.sendSensorData(temperature, bpm);
     }
 };
