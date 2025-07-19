@@ -105,7 +105,9 @@ private:
 public:
     bool begin()
     {
-        return mlx.begin() && max.begin();
+        mlx.begin();
+        delay(1000);
+        return max.begin();
     }
 
     float readTemperature()

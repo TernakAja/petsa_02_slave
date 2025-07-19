@@ -22,14 +22,11 @@ void setup()
     Wire.setClock(400000);
 
     // Init sensors
-    sensor.initMLX90614();
-    delay(1000);
-    sensor.initMAX30105();
-    delay(200);
+    sensor.begin();
 
     // Init remote and timer
     remote.begin();
-    ticker.attach(1.0f, []()
+    ticker.attach(1, []()
                   { utils.taskMaster(); }); // Every second
 }
 
