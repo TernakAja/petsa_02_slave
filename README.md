@@ -1,28 +1,77 @@
+# PETSA-02 Slave
 
-# PETSA-02 (Slave)
-Source code fungsi-fungsi, programming logic, untuk device slave PETSA-02, berikut adalah penjelasan masing-masing usecase yang terdapat pada device ini.
+**PETSA-02 Slave** adalah firmware untuk perangkat IoT berbasis ESP8266 (NodeMCU) yang berfungsi sebagai _slave device_ untuk mengumpulkan data kesehatan hewan ternak seperti detak jantung dan suhu tubuh, lalu mengirimkannya ke Azure IoT Hub secara real-time.
 
-## 1. Sensor Logic 
-Logic Sequence paling awal dalam fungsi device ini.
+## Fitur Utama
 
-### :heart_exclamation: - ppgSensor.ino 
-Modul ini sebagai parameter Utama untuk mendapatkan Kesehatan Objek **(Detak Jantung)** , kami menggunakan device **MAX30105**.
-- Saat initialState alias *initializePPG()*, device akan me-maksimalkan cahaya LED untuk penetrasi Maksimal, karena khususnya ketebalan kulit kuping objek (Hewan) lebih tebal dari kulit jari manusia.
-- Gunakan *getHeartRate()* untuk membaca detak jantung objek secara Live, teknologi bio-sensing yang kami adaptasi untuk mendapatkan data adalah dengan mencari & mengkomputasi-kan frekuensi yang muncul dari device , device ini menggunakan metode Photoplethysmography: Dimana device tersebut akan mencari momen tertentu saat aliran darah berubah & menciptakan sebuah pattern (BPM) atau detak setiap menit.
+- Pembacaan detak jantung dengan sensor **MAX30105**
+- Pengukuran suhu tubuh dengan sensor inframerah **MLX90614**
+- Pengiriman data ke **Azure IoT Hub** melalui MQTT
+- Struktur kode modular dan terorganisir
+- Dikembangkan menggunakan **PlatformIO** dengan framework Arduino
 
-### :thermometer: - infrared_sensor.ino
-Modul ini terdapat fungsi untuk mendapatkan Tempratur / Suhu Objek, aspek ini juga penting sebagai Parameter utama terhadap kesehatan Objek, di modul ini kami menggunakan sensor **MLX90614**.
-- Saat initialState, kami menyesuaikan Emmisivity berdasarkan referensi khusus mengenai ketebalan objek tersebut, sebagai contoh untuk manusia menggunakan *0.95* sampai *0.97*.
-- Fungsi *getTemprature()* akan memuat data suhu tubuh secara Threading atau terus menerus, 
+## Struktur Proyek
 
-
-## 2. Data Logic :
 ```
-TODO : 
-1. Create a logic to communicate and provide necessary data between *SLAVE*  > *MASTER*.
-2. Create timing sequence to send data, as example provide array of 5 or 10 data each 5 minutes
-3. Manage power-cycle necessarily, and reduce power consuming as much as possible.
+src/
+├── main.cpp                  // Fungsi utama device
+├── utils/
+│   ├── sensors.h             // Inisialisasi & pembacaan sensor
+│   └── others.h              // Fungsi utilitas tambahan
+├── data/
+│   └── remote_datasource.h   // Komunikasi dengan Azure IoT Hub
+lib/
+└── env/
+    └── env.h                 // Konfigurasi rahasia dari .env
 ```
 
+## Setup & Konfigurasi
 
+### 1. Clone Repositori
 
+```bash
+git clone https://github.com/TernakAja/petsa_02_slave.git
+cd petsa_02_slave
+```
+
+### 2. Buat File Konfigurasi `.env.h`
+
+Letakkan di dalam `lib/env/env.h` dan isi dengan konfigurasi Anda:
+
+```cpp
+#define WIFI_SSID "nama_wifi"
+#define WIFI_PASSWORD "password_wifi"
+
+#define AZURE_IOT_HOST "your-iot-hub.azure-devices.net"
+#define AZURE_IOT_PORT 8883
+#define AZURE_IOT_DEVICE_ID "device-id-anda"
+#define AZURE_IOT_SAS_TOKEN "SharedAccessSignature sr=..."
+#define AZURE_IOT_TOPIC "devices/device-id-anda/messages/events/"
+```
+
+### 3. Upload ke Board
+
+Gunakan PlatformIO:
+
+```bash
+pio run --target upload
+```
+
+## Penjelasan Sensor
+
+### MAX30105 (PPG Sensor)
+
+Digunakan untuk mengukur detak jantung dengan metode **Photoplethysmography (PPG)**.  
+Sensor membaca pola aliran darah dari perubahan cahaya untuk menghasilkan nilai BPM.
+
+### MLX90614 (IR Thermometer)
+
+Digunakan untuk mengukur suhu tubuh hewan secara non-kontak.  
+Emissivity disesuaikan berdasarkan referensi untuk kulit hewan (sekitar 0.98).
+
+## Rencana Pengembangan
+
+- Sinkronisasi data ke perangkat master
+- Pengiriman data setiap interval tertentu
+- Pengelolaan daya untuk efisiensi baterai
+- Implementasi local caching (jika diperlukan)
