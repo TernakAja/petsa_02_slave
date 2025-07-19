@@ -5,40 +5,66 @@
 #include "MAX30105.h"
 #include "heartRate.h"
 
-struct Sensor
+class MLX90614Sensor
 {
+private:
     Adafruit_MLX90614 mlx;
-    MAX30105 particleSensor;
-    long lastBeat = 0;
-    float beatsPerMinute = 0;
 
-    void initMLX90614()
+public:
+    bool begin()
     {
         Serial.println("Initializing MLX90614...");
         if (!mlx.begin())
         {
             Serial.println("Error connecting to MLX sensor. Check wiring.");
-            while (1)
-                ;
+            return false;
         }
         Serial.print("Emissivity = ");
         Serial.println(mlx.readEmissivity());
         Serial.println("MLX90614 Loaded!");
+        return true;
     }
+    float readCoreBodyTemperature()
+    {
+        // Set I2C speed to 100kHz for MLX90614
+        Wire.setClock(100000);
 
-    void initMAX30105()
+        float tEar = mlx.readObjectTempC();      // Suhu telinga
+        float tAmbient = mlx.readAmbientTempC(); // Suhu lingkungan
+
+        // Restore I2C speed to 400kHz (default for MAX30105)
+        Wire.setClock(400000);
+
+        // Estimasi suhu tubuh inti menggunakan model linear empiris
+        // Contoh koefisien: T_core = 0.8 * T_ear + 0.1 * T_ambient + 5
+        float tCore = 0.8 * tEar + 0.1 * tAmbient + 5;
+
+        return tCore;
+    }
+};
+
+class MAX30105Sensor
+{
+private:
+    MAX30105 particleSensor;
+    long lastBeat = 0;
+    float beatsPerMinute = 0;
+    float prevIR = 0;
+
+public:
+    bool begin()
     {
         Serial.println("Initializing MAX30105...");
         if (!particleSensor.begin(Wire, I2C_SPEED_FAST))
         {
             Serial.println("MAX30105 not found. Check wiring.");
-            while (1)
-                ;
+            return false;
         }
         particleSensor.setup();
         particleSensor.setPulseAmplitudeRed(0x1F);
         particleSensor.setPulseAmplitudeGreen(0);
         Serial.println("MAX30105 Loaded!");
+        return true;
     }
 
     float readHeartBeat()
@@ -50,7 +76,6 @@ struct Sensor
             return 0;
         }
 
-        static float prevIR = 0;
         float filteredIR = irValue - 0.99 * prevIR;
         prevIR = irValue;
 
@@ -66,14 +91,30 @@ struct Sensor
                 return beatsPerMinute;
             }
         }
+
         return 0;
+    }
+};
+
+class Sensor
+{
+private:
+    MLX90614Sensor mlx;
+    MAX30105Sensor max;
+
+public:
+    bool begin()
+    {
+        return mlx.begin() && max.begin();
     }
 
     float readTemperature()
     {
-        Wire.setClock(100000); // MLX90614 prefers 100kHz
-        float temp = mlx.readObjectTempC();
-        Wire.setClock(400000); // Restore 400kHz for MAX30105
-        return temp;
+        return mlx.readCoreBodyTemperature();
+    }
+
+    float readHeartBeat()
+    {
+        return max.readHeartBeat();
     }
 };
