@@ -1,4 +1,3 @@
-<img width="1613" height="528" alt="Dark BG" src="https://github.com/user-attachments/assets/c80e65c9-7922-4cac-86b6-c3d9a2d6a26e" />
 
 # PETSA-02 (Slave)
 Source code fungsi-fungsi, programming logic, untuk device slave PETSA-02, berikut adalah penjelasan masing-masing usecase yang terdapat pada device ini.
