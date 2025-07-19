@@ -5,6 +5,11 @@
 class OtherUtils
 {
 public:
+    String getDeviceId()
+    {
+        return "PETSA-02-" + String(ESP.getChipId(), HEX); // or DEC for decimal
+    }
+
     static int getAverage(float data[], int size)
     {
         int sum = 0;

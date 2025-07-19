@@ -22,7 +22,7 @@ void setup()
     Wire.begin();
     Wire.setClock(400000);
 
-    // Initialize WIFI & Sensors
+    // Initialize Connection & Sensors
     sensor.begin();
     remote.begin();
 
