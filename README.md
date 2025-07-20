@@ -1,5 +1,6 @@
-# PETSA-02 Slave
+[![My Skills](https://skillicons.dev/icons?i=arduino,cpp,py,azure)](https://skillicons.dev)
 
+# PETSA-02 Slave
 **PETSA-02 Slave** adalah firmware untuk perangkat IoT berbasis ESP8266 (NodeMCU) yang berfungsi sebagai _slave device_ untuk mengumpulkan data kesehatan hewan ternak seperti detak jantung dan suhu tubuh, lalu mengirimkannya ke Azure IoT Hub secara real-time.
 
 ## Fitur Utama
