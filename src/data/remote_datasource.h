@@ -2,6 +2,7 @@
 
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
+#include <ctime>
 #include "../../lib/env.h"
 
 class RemoteDataSource
@@ -9,16 +10,19 @@ class RemoteDataSource
 private:
     WiFiClientSecure wifiClient;
     PubSubClient mqttClient;
+    time_t lastPublishTime = 0; // Track last publish time to avoid flooding
 
     const char *host = AZURE_IOT_HOST;
     const int port = AZURE_IOT_PORT;
-    const char *deviceId = AZURE_IOT_DEVICE_ID;
+    const String deviceId = AZURE_IOT_DEVICE_ID;
     const char *sasToken = AZURE_IOT_SAS_TOKEN;
     const char *topic = AZURE_IOT_TOPIC;
 
 public:
     RemoteDataSource() : mqttClient(wifiClient) {}
 
+    // Initialize the remote data source
+    // This sets up the WiFi connection and MQTT client
     void begin()
     {
         wifiClient.setInsecure(); // Skip TLS cert validation (not safe for prod)
@@ -32,6 +36,8 @@ public:
         Serial.println("\nWiFi connected.");
     }
 
+    // Connect to Azure IoT Hub
+    // This handles the MQTT connection to Azure IoT Hub
     bool connect()
     {
         if (mqttClient.connected())
@@ -58,6 +64,8 @@ public:
         return connected;
     }
 
+    // Send sensor data to Azure IoT Hub
+    // This publishes the temperature and BPM data to the specified topic
     bool sendSensorData(float temperature, float bpm)
     {
         if (!mqttClient.connected())

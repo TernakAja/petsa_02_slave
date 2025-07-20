@@ -5,7 +5,7 @@
 class OtherUtils
 {
 public:
-    String getDeviceId()
+    static String getDeviceId()
     {
         return "PETSA-02-" + String(ESP.getChipId(), HEX); // or DEC for decimal
     }

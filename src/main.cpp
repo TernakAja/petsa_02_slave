@@ -7,12 +7,15 @@
 #include "utils/others.h"
 #include "data/remote_datasource.h"
 #include "state/sensor/sensor_state.h"
+#include "state/job/job_state.h"
 
 // Globals
 Sensor sensor;
 Ticker ticker;
 RemoteDataSource remote;
 OtherUtils utils;
+Ticker jobTicker;
+JobState jobState;
 
 // Setup
 void setup()
@@ -26,7 +29,13 @@ void setup()
     sensor.begin();
     remote.begin();
 
+    // Job State: setup job state
+    jobState.begin();
+    jobState.startJob();
+
     // Set up secondary periodic tasks
+    ticker.attach(6, []()
+                  { jobState.tick(remote); });
     ticker.attach(1, []()
                   { utils.taskMaster(sensor.readTemperature(), sensor.readHeartBeat()); });
 }
