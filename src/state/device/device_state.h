@@ -12,6 +12,7 @@ typedef void (*StateCallback)();
 class DeviceState
 {
 public:
+    DeviceState(); // Constructor
     // Constant device information
     const String deviceName = DEVICE_NAME;
     const String deviceType = DEVICE_TYPE;
@@ -37,6 +38,13 @@ private:
     String chargingStatus = "Not Charging";
     String voltageReading = "Not available";
 
+    // Runtime configuration variables
+    String wifiSSID = "placeholder";
+    String wifiPassword = "placeholder";
+    String deviceNameRuntime;
+    String locationRuntime;
+    String installationDateRuntime;
+
     StateCallback onChange = nullptr;
 
     bool hasChanged(String oldVal, String newVal);
@@ -48,6 +56,17 @@ public:
     void printState();
     void setListener(StateCallback callback);
     void handleSerialCommand(const String &command);
+    
+    // Configuration management
+    void handleWifiConfig(const String &command);
+    void handleDeviceConfig(const String &command);
+    void saveConfigToEEPROM();
+    void loadConfigFromEEPROM();
+    void resetConfigToDefaults();
+    
+private:
+    void parseConfigJSON(const String &json);
+    void initializeDefaults();
 };
 
 // Singleton instance
