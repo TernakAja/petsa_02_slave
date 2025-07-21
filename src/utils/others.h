@@ -5,6 +5,11 @@
 class OtherUtils
 {
 public:
+    static void onDeviceStateChange()
+    {
+        Serial.println("Device state changed:");
+        deviceState.printState();
+    }
     static String getDeviceId()
     {
         return "PETSA-02-" + String(ESP.getChipId(), HEX); // or DEC for decimal

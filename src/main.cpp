@@ -8,45 +8,58 @@
 #include "data/remote_datasource.h"
 #include "state/sensor/sensor_state.h"
 #include "state/job/job_state.h"
+#include "state/device/device_state.h"
 
 // Globals
 Sensor sensor;
-Ticker ticker;
 RemoteDataSource remote;
 OtherUtils utils;
+
+// Ticker
+Ticker ticker;
 Ticker jobTicker;
-JobState jobState;
+Ticker deviceTicker;
 
 // Setup
 void setup()
 {
-    // Initialize Serial: setup serial communication
     Serial.begin(115200);
     Wire.begin();
     Wire.setClock(400000);
 
-    // Initialize Connection & Sensors
-    sensor.begin();
-    remote.begin();
+    // // Setup listeners
+    // deviceState.setListener(onDeviceStateChange);
 
-    // Job State: setup job state
-    jobState.begin();
-    jobState.startJob();
+    // // Initial update after Wi-Fi connected
+    // deviceState.updateFromSystem();
 
-    // Set up secondary periodic tasks
-    ticker.attach(6, []()
-                  { jobState.tick(remote); });
-    ticker.attach(1, []()
-                  { utils.taskMaster(sensor.readTemperature(), sensor.readHeartBeat()); });
+    // // Init sensors & modules
+    // sensor.begin();
+    // remote.begin();
+    // jobState.begin();
+    // jobState.startJob();
+
+    // // Schedule job + sensor updater
+    // jobTicker.attach(6, []()
+    //                  { jobState.tick(remote); });
+
+    // // Schedule device info updater
+    // ticker.attach(1, []()
+    //               { utils.taskMaster(sensor.readTemperature(), sensor.readHeartBeat()); });
+
+    deviceState.printState();
+    deviceTicker.attach(10, []()
+                        { deviceState.updateFromSystem(); });
 }
 
-// Main Loop: non-delaying loop
+// Main Loop
 void loop()
 {
-    // Set current sensor state : This should be called periodically to update the sensor state
-    sensorState.setState(
-        sensor.readTemperature(),
-        sensor.readHeartBeat());
+    deviceState.setListener(utils.onDeviceStateChange);
+    // // Update sensor state
+    // sensorState.setState(
+    //     sensor.readTemperature(),
+    //     sensor.readHeartBeat());
 
-    remote.loop(); // Keep MQTT alive
+    // remote.loop(); // MQTT keep-alive
 }
