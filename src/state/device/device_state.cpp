@@ -1,7 +1,5 @@
 #include "device_state.h"
 
-DeviceState deviceState;
-
 bool DeviceState::hasChanged(String oldVal, String newVal)
 {
     return oldVal != newVal;
