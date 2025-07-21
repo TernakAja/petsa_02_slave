@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
+#include "../state/device/device_state.h"
 
 class OtherUtils
 {
