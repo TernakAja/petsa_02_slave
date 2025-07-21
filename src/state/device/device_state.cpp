@@ -31,11 +31,12 @@ void DeviceState::handleSerialCommand(const String &command)
         Serial.println("{");
         Serial.println("  \"device_info\": {");
         Serial.println("    \"device_name\": \"" + deviceName + "\",");
+        Serial.println("    \"device_repo\": \"" + deviceRepo + "\",");
         Serial.println("    \"device_type\": \"" + deviceType + "\",");
         Serial.println("    \"device_id\": \"" + deviceId + "\",");
         Serial.println("    \"firmware_version\": \"" + firmwareVersion + "\",");
         Serial.println("    \"board_type\": \"" + boardType + "\",");
-        Serial.println("    \"mac_address\": \"" + macAddress + "\",");
+        Serial.println("    \"mac_address\": \"" + WiFi.macAddress() + "\",");
         Serial.println("    \"installation_date\": \"" + installationDate + "\",");
         Serial.println("    \"location\": \"" + location + "\"");
         Serial.println("  },");

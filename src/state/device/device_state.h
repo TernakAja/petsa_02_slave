@@ -15,6 +15,7 @@ public:
     // Constant device information
     const String deviceName = DEVICE_NAME;
     const String deviceType = DEVICE_TYPE;
+    const String deviceRepo = DEVICE_REPO;
     String deviceId;
     const String firmwareVersion = FIRMWARE_VERSION;
     const String boardType = BOARD_TYPE;

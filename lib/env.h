@@ -3,11 +3,12 @@
 #define WIFI_PASSWORD "placeholder"
 
 // Device information
-#define DEVICE_NAME "undefined"
-#define DEVICE_TYPE "undefined"
-#define DEVICE_ID "undefined"
-#define FIRMWARE_VERSION "undefined"
-#define BOARD_TYPE "undefined"
+#define DEVICE_NAME "PETSA-02"
+#define DEVICE_TYPE "slave"
+#define DEVICE_REPO "petsa_02_slave"
+#define DEVICE_ID ""
+#define FIRMWARE_VERSION "v1.0.0"
+#define BOARD_TYPE "ESP8266 NodeMCU"
 #define MAC_ADDRESS "undefined"
 #define INSTALLATION_DATE "undefined"
 #define LOCATION "undefined"
