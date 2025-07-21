@@ -24,6 +24,11 @@ Ticker deviceTicker;
 void setup()
 {
     Serial.begin(115200);
+    delay(1000); // Give serial time to initialize
+    Serial.println("[DEBUG] Serial communication started");
+    Serial.println("[DEBUG] Device ready to receive commands");
+    Serial.flush();
+    
     Wire.begin();
     Wire.setClock(400000);
 
@@ -59,4 +64,7 @@ void loop()
         sensor.readHeartBeat());
 
     remote.loop(); // MQTT keep-alive
+    
+    // Small delay to prevent overwhelming the serial buffer
+    delay(10);
 }

@@ -7,6 +7,14 @@ void OtherUtils::onDeviceStateChange()
     {
         String command = Serial.readStringUntil('\n');
         command.trim(); // remove any trailing newline or space
-        deviceState.handleSerialCommand(command);
+        
+        // Debug: Print received command
+        Serial.print("[DEBUG] Received command: '");
+        Serial.print(command);
+        Serial.println("'");
+        
+        if (command.length() > 0) {
+            deviceState.handleSerialCommand(command);
+        }
     }
 }

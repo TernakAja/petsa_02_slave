@@ -21,8 +21,13 @@ bool DeviceState::applyChange(String &field, const String &newVal)
 
 void DeviceState::handleSerialCommand(const String &command)
 {
+    Serial.print("[DEBUG] Processing command: '");
+    Serial.print(command);
+    Serial.println("'");
+    
     if (command == "INFO")
     {
+        Serial.println("[DEBUG] INFO command matched, sending response...");
         Serial.println("{");
         Serial.println("  \"device_info\": {");
         Serial.println("    \"device_name\": \"" + deviceName + "\",");
@@ -35,6 +40,12 @@ void DeviceState::handleSerialCommand(const String &command)
         Serial.println("    \"location\": \"" + location + "\"");
         Serial.println("  }");
         Serial.println("}");
+        Serial.flush(); // Ensure data is sent immediately
+        Serial.println("[DEBUG] Response sent and flushed");
+    }
+    else
+    {
+        Serial.println("[DEBUG] Unknown command: '" + command + "'");
     }
 }
 
