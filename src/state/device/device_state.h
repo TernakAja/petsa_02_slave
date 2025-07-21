@@ -29,7 +29,7 @@ private:
     String lastSeen = "Not available";
     String connectionType = "Wi-Fi";
     String ipAddress = "Not available";
-    String macAddress = "Not available"; // live mac from WiFi.macAddress()
+    String macAddress = "Not available"; 
     String signalStrength = "Not available";
 
     String powerSource = "Battery";
@@ -44,6 +44,7 @@ private:
 
 public:
     void updateFromSystem();
+    void updatePowerStatus();
     void printState();
     void setListener(StateCallback callback);
     void handleSerialCommand(const String &command);

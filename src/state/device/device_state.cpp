@@ -47,10 +47,10 @@ void DeviceState::handleSerialCommand(const String &command)
         Serial.flush(); // Ensure data is sent immediately
         // Serial.println("[DEBUG] Response sent and flushed"); // Removed to avoid JSON parsing issues
     }
-    else
-    {
-        Serial.println("[DEBUG] Unknown command: '" + command + "'");
+    if(command == "INFO_CONNECTION") {
+        printState();
     }
+
 }
 
 void DeviceState::updateFromSystem()
@@ -76,9 +76,54 @@ void DeviceState::updateFromSystem()
         changed |= applyChange(signalStrength, "Not available");
     }
 
+    // Update power status with real hardware readings
+    updatePowerStatus();
+
     if (changed && onChange != nullptr)
     {
         onChange();
+    }
+}
+
+void DeviceState::updatePowerStatus()
+{
+    // Read ADC value (0-1024 on ESP8266)
+    int adcValue = analogRead(A0);
+    
+    // Convert ADC to voltage (ESP8266 ADC reference is typically 1.0V, but with voltage divider it can read up to 3.3V)
+    // For battery monitoring, typical voltage divider gives us: Vout = Vin * (R2/(R1+R2))
+    // Assuming a 3.3V max input with voltage divider
+    float voltage = (adcValue / 1024.0) * 3.3;
+    
+    // Update voltage reading
+    voltageReading = String(voltage, 2) + "V";
+    
+    // Determine power source based on voltage level
+    // When connected to PC via USB, ESP8266 is powered externally
+    // Low voltage (< 1.0V) typically indicates USB power with no battery connected
+    // Higher voltage (> 2.5V) indicates battery power
+    if (voltage < 1.0) {
+        powerSource = "USB (PC Connection)";
+        chargingStatus = "External Power";
+        batteryLevel = "N/A (USB Powered)";
+    } else if (voltage >= 3.0 && voltage <= 4.2) {
+        powerSource = "Battery";
+        chargingStatus = "Not Charging";
+        // Calculate battery percentage (rough estimation for Li-ion)
+        float batteryPercent = ((voltage - 3.0) / (4.2 - 3.0)) * 100;
+        batteryLevel = String((int)batteryPercent) + "%";
+    } else if (voltage > 4.2) {
+        powerSource = "External/Charging";
+        chargingStatus = "Charging";
+        batteryLevel = "100%+ (Charging)";
+    } else if (voltage >= 1.0 && voltage < 3.0) {
+        powerSource = "Battery (Low)";
+        chargingStatus = "Not Charging";
+        batteryLevel = "Low/Critical";
+    } else {
+        powerSource = "Unknown";
+        chargingStatus = "Unknown";
+        batteryLevel = "Unknown";
     }
 }
 
@@ -92,6 +137,9 @@ void DeviceState::printState()
     Serial.println("    \"signal_strength\": \"" + signalStrength + "\"");
     Serial.println("  },");
 
+    // Update power status with real-time readings before printing
+    updatePowerStatus();
+    
     Serial.println("  \"power_status\": {");
     Serial.println("    \"power_source\": \"" + powerSource + "\",");
     Serial.println("    \"battery_level\": \"" + batteryLevel + "\",");
