@@ -38,10 +38,13 @@ void DeviceState::handleSerialCommand(const String &command)
         Serial.println("    \"mac_address\": \"" + macAddress + "\",");
         Serial.println("    \"installation_date\": \"" + installationDate + "\",");
         Serial.println("    \"location\": \"" + location + "\"");
-        Serial.println("  }");
-        Serial.println("}");
+        Serial.println("  },");
+        
+        // Add connectivity and power status
+        printState();
+        
         Serial.flush(); // Ensure data is sent immediately
-        Serial.println("[DEBUG] Response sent and flushed");
+        // Serial.println("[DEBUG] Response sent and flushed"); // Removed to avoid JSON parsing issues
     }
     else
     {

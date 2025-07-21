@@ -36,18 +36,16 @@ void setup()
     deviceState.updateFromSystem();
 
     // // Init sensors & modules
-    sensor.begin();
-    remote.begin();
-    jobState.begin();
-    jobState.startJob();
+    // sensor.begin();
+    // remote.begin();
+    // jobState.begin();
+    // jobState.startJob();
 
     // // Schedule job + sensor updater
-    jobTicker.attach(6, []()
-                     { jobState.tick(remote); });
+    // jobTicker.attach(6, []() { jobState.tick(remote); });
 
     // // Schedule device info updater
-    ticker.attach(1, []()
-                  { utils.taskMaster(sensor.readTemperature(), sensor.readHeartBeat()); });
+    // ticker.attach(1, []() { utils.taskMaster(sensor.readTemperature(), sensor.readHeartBeat()); });
 
     deviceTicker.attach(1, []()
                         { deviceState.updateFromSystem(); });
@@ -59,11 +57,11 @@ void loop()
     utils.onDeviceStateChange();
 
     // // Update sensor state
-    sensorState.setState(
-        sensor.readTemperature(),
-        sensor.readHeartBeat());
+    // sensorState.setState(
+    //     sensor.readTemperature(),
+    //     sensor.readHeartBeat());
 
-    remote.loop(); // MQTT keep-alive
+    // remote.loop(); // MQTT keep-alive
     
     // Small delay to prevent overwhelming the serial buffer
     delay(10);
