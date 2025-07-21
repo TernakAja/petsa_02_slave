@@ -3,6 +3,9 @@
 #include <ESP8266WiFi.h>
 #include "../../../lib/env.h"
 
+// Forward declaration
+class OtherUtils;
+
 // Callback type
 typedef void (*StateCallback)();
 
@@ -12,7 +15,7 @@ public:
     // Constant device information
     const String deviceName = DEVICE_NAME;
     const String deviceType = DEVICE_TYPE;
-    const String deviceId = DEVICE_ID;
+    String deviceId;
     const String firmwareVersion = FIRMWARE_VERSION;
     const String boardType = BOARD_TYPE;
     const String macAddressStatic = MAC_ADDRESS;

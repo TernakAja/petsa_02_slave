@@ -4,6 +4,7 @@
 #include <PubSubClient.h>
 #include <ctime>
 #include "../../lib/env.h"
+#include "../utils/others.h"
 
 class RemoteDataSource
 {
@@ -14,7 +15,7 @@ private:
 
     const char *host = AZURE_IOT_HOST;
     const int port = AZURE_IOT_PORT;
-    const String deviceId = AZURE_IOT_DEVICE_ID;
+    const String deviceId = OtherUtils::getDeviceId();
     const char *sasToken = AZURE_IOT_SAS_TOKEN;
     const char *topic = AZURE_IOT_TOPIC;
 

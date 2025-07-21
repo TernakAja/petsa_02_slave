@@ -1,4 +1,8 @@
 #include "device_state.h"
+#include "../../utils/others.h"
+
+// Define the global deviceState instance
+DeviceState deviceState;
 
 bool DeviceState::hasChanged(String oldVal, String newVal)
 {
@@ -36,6 +40,11 @@ void DeviceState::handleSerialCommand(const String &command)
 
 void DeviceState::updateFromSystem()
 {
+    // Initialize deviceId if not set
+    if (deviceId.isEmpty()) {
+        deviceId = OtherUtils::getDeviceId();
+    }
+    
     bool changed = false;
 
     if (WiFi.isConnected())

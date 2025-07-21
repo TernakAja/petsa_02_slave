@@ -1,20 +1,15 @@
 #pragma once
 
 #include <Arduino.h>
-#include "../state/device/device_state.h"
+
+// Forward declaration
+class DeviceState;
+extern DeviceState deviceState;
 
 class OtherUtils
 {
 public:
-    void onDeviceStateChange()
-    {
-        if (Serial.available())
-        {
-            String command = Serial.readStringUntil('\n');
-            command.trim(); // remove any trailing newline or space
-            deviceState.handleSerialCommand(command);
-        }
-    }
+    void onDeviceStateChange();
     static String getDeviceId()
     {
         return "PETSA-02-" + String(ESP.getChipId(), HEX); // or DEC for decimal

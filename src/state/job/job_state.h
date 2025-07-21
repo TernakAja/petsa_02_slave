@@ -3,8 +3,8 @@
 
 #include <Arduino.h>
 #include "../sensor/sensor_state.h"
-#include "utils/others.h"
-#include "data/remote_datasource.h"
+#include "../../utils/others.h"
+#include "../../data/remote_datasource.h"
 
 class JobState
 {
