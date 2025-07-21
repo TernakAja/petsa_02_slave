@@ -5,10 +5,14 @@
 class OtherUtils
 {
 public:
-    static void onDeviceStateChange()
+    void onDeviceStateChange()
     {
-        Serial.println("Device state changed:");
-        deviceState.printState();
+        if (Serial.available())
+        {
+            String command = Serial.readStringUntil('\n');
+            command.trim(); // remove any trailing newline or space
+            deviceState.handleSerialCommand(command);
+        }
     }
     static String getDeviceId()
     {

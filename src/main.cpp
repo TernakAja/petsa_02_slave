@@ -27,39 +27,36 @@ void setup()
     Wire.begin();
     Wire.setClock(400000);
 
-    // // Setup listeners
-    // deviceState.setListener(onDeviceStateChange);
-
     // // Initial update after Wi-Fi connected
-    // deviceState.updateFromSystem();
+    deviceState.updateFromSystem();
 
     // // Init sensors & modules
-    // sensor.begin();
-    // remote.begin();
-    // jobState.begin();
-    // jobState.startJob();
+    sensor.begin();
+    remote.begin();
+    jobState.begin();
+    jobState.startJob();
 
     // // Schedule job + sensor updater
-    // jobTicker.attach(6, []()
-    //                  { jobState.tick(remote); });
+    jobTicker.attach(6, []()
+                     { jobState.tick(remote); });
 
     // // Schedule device info updater
-    // ticker.attach(1, []()
-    //               { utils.taskMaster(sensor.readTemperature(), sensor.readHeartBeat()); });
+    ticker.attach(1, []()
+                  { utils.taskMaster(sensor.readTemperature(), sensor.readHeartBeat()); });
 
-    deviceState.printState();
-    deviceTicker.attach(10, []()
+    deviceTicker.attach(1, []()
                         { deviceState.updateFromSystem(); });
 }
 
 // Main Loop
 void loop()
 {
-    deviceState.setListener(utils.onDeviceStateChange);
-    // // Update sensor state
-    // sensorState.setState(
-    //     sensor.readTemperature(),
-    //     sensor.readHeartBeat());
+    utils.onDeviceStateChange();
 
-    // remote.loop(); // MQTT keep-alive
+    // // Update sensor state
+    sensorState.setState(
+        sensor.readTemperature(),
+        sensor.readHeartBeat());
+
+    remote.loop(); // MQTT keep-alive
 }

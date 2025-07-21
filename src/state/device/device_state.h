@@ -15,7 +15,7 @@ public:
     const String deviceId = DEVICE_ID;
     const String firmwareVersion = FIRMWARE_VERSION;
     const String boardType = BOARD_TYPE;
-    const String macAddress = MAC_ADDRESS;
+    const String macAddressStatic = MAC_ADDRESS;
     const String installationDate = INSTALLATION_DATE;
     const String location = LOCATION;
 
@@ -25,6 +25,7 @@ private:
     String lastSeen = "Not available";
     String connectionType = "Wi-Fi";
     String ipAddress = "Not available";
+    String macAddress = "Not available"; // live mac from WiFi.macAddress()
     String signalStrength = "Not available";
 
     String powerSource = "Battery";
@@ -34,10 +35,14 @@ private:
 
     StateCallback onChange = nullptr;
 
+    bool hasChanged(String oldVal, String newVal);
+    bool applyChange(String &field, const String &newVal);
+
 public:
     void updateFromSystem();
     void printState();
     void setListener(StateCallback callback);
+    void handleSerialCommand(const String &command);
 };
 
 // Singleton instance
