@@ -5,7 +5,6 @@
 // Forward declaration
 class DeviceState;
 extern DeviceState deviceState;
-
 class OtherUtils
 {
 public:
@@ -26,7 +25,8 @@ public:
 
             if (command.length() > 0)
             {
-                deviceState.handleSerialCommand(command);
+                // Use the extern deviceState variable
+                ::deviceState.handleSerialCommand(command);
             }
         }
     }

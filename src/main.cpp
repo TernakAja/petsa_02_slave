@@ -4,11 +4,11 @@
 
 // Utils & Modules
 #include "utils/sensors.h"
+#include "state/device/device_state.h"
 #include "utils/others.h"
 #include "data/remote_datasource.h"
 #include "state/sensor/sensor_state.h"
 #include "state/job/job_state.h"
-#include "state/device/device_state.h"
 
 // Globals
 Sensor sensor;

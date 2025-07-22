@@ -77,7 +77,7 @@ public:
             Serial.println("MQTT not connected. Skipping send.");
             return;
         }
-        StaticJsonDocument<256> doc;
+        JsonDocument doc;
         doc["deviceId"] = deviceId;
         doc["pulseRate"] = pulseRate;
         doc["temperature"] = temperature;
