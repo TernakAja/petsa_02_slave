@@ -46,14 +46,14 @@ public:
 
     void taskMaster(float temperature, float bpm)
     {
-        float batteryVolt = readBatteryVoltage();
-        int batteryPercent = batteryPercentage(batteryVolt);
+        //float batteryVolt = readBatteryVoltage();
+        //int batteryPercent = batteryPercentage(batteryVolt);
 
         Serial.printf("Temperature: %.2f °C\n", temperature);
         if (bpm > 0.0f)
         {
             Serial.printf("Heart Rate: %.2f BPM\n", bpm);
         }
-        Serial.printf("Battery: %.2f V (%d%%)\n", batteryVolt, batteryPercent);
+        //Serial.printf("Battery: %.2f V (%d%%)\n", batteryVolt, batteryPercent);
     }
 };

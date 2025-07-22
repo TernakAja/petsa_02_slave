@@ -20,6 +20,8 @@ Ticker ticker;
 Ticker jobTicker;
 Ticker deviceTicker;
 
+unsigned int now;
+
 // Setup
 void setup()
 {
@@ -33,36 +35,41 @@ void setup()
     Wire.setClock(400000);
 
     // // Initial update after Wi-Fi connected
-    deviceState.updateFromSystem();
+    //deviceState.updateFromSystem();
 
     // // Init sensors & modules
-    // sensor.begin();
+     sensor.begin();
     // remote.begin();
-    // jobState.begin();
-    // jobState.startJob();
+     jobState.begin();
+     jobState.startJob();
 
     // // Schedule job + sensor updater
-    // jobTicker.attach(6, []() { jobState.tick(remote); });
+     jobTicker.attach(6, []() { jobState.tick(remote); });
 
     // // Schedule device info updater
-    // ticker.attach(1, []() { utils.taskMaster(sensor.readTemperature(), sensor.readHeartBeat()); });
+     ticker.attach(1, []() { utils.taskMaster(sensor.readTemperature(), sensor.readHeartBeat()); });
 
-    deviceTicker.attach(1, []()
-                        { deviceState.updateFromSystem(); });
+    //deviceTicker.attach(1, []()
+      //                  { deviceState.updateFromSystem(); });
+
+                        now = millis();
 }
 
 // Main Loop
 void loop()
 {
-    utils.onDeviceStateChange();
+
+    //utils.onDeviceStateChange();
 
     // // Update sensor state
-    // sensorState.setState(
-    //     sensor.readTemperature(),
-    //     sensor.readHeartBeat());
-
+    /**
+     sensorState.setState(
+         sensor.readTemperature(),
+         sensor.readHeartBeat());
+*/
     // remote.loop(); // MQTT keep-alive
     
     // Small delay to prevent overwhelming the serial buffer
-    delay(10);
+
+    //delay(10);
 }

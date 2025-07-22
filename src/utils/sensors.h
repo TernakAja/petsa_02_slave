@@ -49,7 +49,7 @@ private:
     MAX30105 particleSensor;
     long lastBeat = 0;
     float beatsPerMinute = 0;
-    float prevIR = 0;
+    //float prevIR = 0;
 
 public:
     bool begin()
@@ -75,12 +75,14 @@ public:
             delay(100);
             return 0;
         }
-
+        static float prevIR = 0;
         float filteredIR = irValue - 0.99 * prevIR;
         prevIR = irValue;
 
         if (checkForBeat(filteredIR))
         {
+            Serial.println("\t\t\tBALLSACKSSSSSSasdkadjsakdaldjsaklda\nsdahdshadhaskdhasjdasdjsakdhasjkdhas");
+
             unsigned long now = millis();
             unsigned long delta = now - lastBeat;
             lastBeat = now;
@@ -92,7 +94,7 @@ public:
             }
         }
 
-        return 0;
+        return beatsPerMinute;
     }
 };
 
@@ -113,10 +115,12 @@ public:
     float readTemperature()
     {
         return mlx.readCoreBodyTemperature();
+        //return 1;
     }
 
     float readHeartBeat()
     {
         return max.readHeartBeat();
+        //return 1;
     }
 };
