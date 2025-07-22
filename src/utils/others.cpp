@@ -3,6 +3,7 @@
 
 void OtherUtils::onDeviceStateChange()
 {
+    /*
     if (Serial.available())
     {
         String command = Serial.readStringUntil('\n');
@@ -17,4 +18,5 @@ void OtherUtils::onDeviceStateChange()
             deviceState.handleSerialCommand(command);
         }
     }
+        */
 }

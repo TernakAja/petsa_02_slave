@@ -20,6 +20,7 @@ public:
         {
             onChange();
         }
+        //Serial.printf("Temperature: %.2f\tBPM: %2.f\n", newTemp, newBpm);
     }
 
     float getBPM() const { return bpm; }

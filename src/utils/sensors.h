@@ -81,7 +81,7 @@ public:
 
         if (checkForBeat(filteredIR))
         {
-            Serial.println("\t\t\tBALLSACKSSSSSSasdkadjsakdaldjsaklda\nsdahdshadhaskdhasjdasdjsakdhasjkdhas");
+            //Serial.println("\t\t\tBALLSACKSSSSSSasdkadjsakdaldjsaklda\nsdahdshadhaskdhasjdasdjsakdhasjkdhas");
 
             unsigned long now = millis();
             unsigned long delta = now - lastBeat;

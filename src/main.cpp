@@ -22,6 +22,12 @@ Ticker deviceTicker;
 
 unsigned int now;
 
+float TEMP = 0, BPM = 0;
+void show()
+{
+    Serial.printf("Temperature: %.2f\tBPM: %2.f\n", TEMP, BPM);
+}
+
 // Setup
 void setup()
 {
@@ -40,33 +46,36 @@ void setup()
     // // Init sensors & modules
      sensor.begin();
     // remote.begin();
-     jobState.begin();
-     jobState.startJob();
+     //jobState.begin();
+     //jobState.startJob();
 
     // // Schedule job + sensor updater
-     jobTicker.attach(6, []() { jobState.tick(remote); });
+     //jobTicker.attach(6, []() { jobState.tick(remote); });
 
     // // Schedule device info updater
-     ticker.attach(1, []() { utils.taskMaster(sensor.readTemperature(), sensor.readHeartBeat()); });
+     ticker.attach(6, []() { utils.taskMaster(TEMP, BPM); });
 
     //deviceTicker.attach(1, []()
       //                  { deviceState.updateFromSystem(); });
 
                         now = millis();
+    jobTicker.attach(1, show);
 }
 
 // Main Loop
 void loop()
 {
+    TEMP = sensor.readTemperature();
+    BPM = sensor.readHeartBeat();  
 
     //utils.onDeviceStateChange();
 
     // // Update sensor state
-    /**
+    
      sensorState.setState(
-         sensor.readTemperature(),
-         sensor.readHeartBeat());
-*/
+         TEMP,
+         BPM);
+
     // remote.loop(); // MQTT keep-alive
     
     // Small delay to prevent overwhelming the serial buffer
