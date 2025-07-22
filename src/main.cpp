@@ -18,58 +18,44 @@ OtherUtils utils;
 // Ticker
 Ticker ticker;
 Ticker jobTicker;
-Ticker deviceTicker;
-
-void show()
-{
-    Serial.printf("Temperature: %.2f\tBPM: %2.f\n", sensorState.getTemperature(), sensorState.getBPM());
-}
 
 // Setup
 void setup()
 {
     Serial.begin(115200);
     delay(1000); // Give serial time to initialize
-    Serial.println("[DEBUG] Serial communication started");
-    Serial.println("[DEBUG] Device ready to receive commands");
     Serial.flush();
-    
     Wire.begin();
     Wire.setClock(400000);
 
-    // // Initial update after Wi-Fi connected
-    //deviceState.updateFromSystem();
+    // Initial update after Wi-Fi connected
+    deviceState.updateFromSystem();
 
-    // // Init sensors & modules
-     sensor.begin();
-    // remote.begin();
-     //jobState.begin();
-     //jobState.startJob();
+    // Init sensors & modules
+    sensor.begin();
+    remote.begin();
+    jobState.begin();
+    jobState.startJob();
 
+    // Debug Temprature
+    ticker.attach(6, []()
+                  { utils.taskMaster(sensorState.getTemperature(), sensorState.getBPM()); });
 
-    // // Schedule device info updater
-     ticker.attach(6, []() { utils.taskMaster(sensorState.getTemperature(), sensorState.getBPM()); });
-
-                     
-    //jobTicker.attach(1, show);
+    // Job to Send Data to Azure
+    jobTicker.attach(1.2, []()
+                     { jobState.tick(remote); });
 }
 
 // Main Loop
 void loop()
 {
-    
-
+    // Detects Command from Serial
     utils.onDeviceStateChange();
 
-    // // Update sensor state
-    
-     sensorState.setState(
-         sensor.readTemperature(),
-         sensor.readHeartBeat());
+    // Update sensor state
+    sensorState.setState(
+        sensor.readTemperature(),
+        sensor.readHeartBeat());
 
-    // remote.loop(); // MQTT keep-alive
-    
-    // Small delay to prevent overwhelming the serial buffer
-
-    //delay(10);
+    delay(10);
 }

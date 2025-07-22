@@ -2,33 +2,41 @@
 
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
+#include <ArduinoJson.h>
 #include <ctime>
+#include <vector>
 #include "../../lib/env.h"
 #include "../utils/others.h"
+
+struct SensorData
+{
+    float temperature;
+    float bpm;
+    float spO2;
+};
 
 class RemoteDataSource
 {
 private:
     WiFiClientSecure wifiClient;
     PubSubClient mqttClient;
-    time_t lastPublishTime = 0; // Track last publish time to avoid flooding
 
     const char *host = AZURE_IOT_HOST;
-    const int port = AZURE_IOT_PORT;
     const String deviceId = OtherUtils::getDeviceId();
     const char *sasToken = AZURE_IOT_SAS_TOKEN;
-    const char *topic = AZURE_IOT_TOPIC;
+
+    unsigned long lastReadTime = 0;
+    unsigned long lastSendTime = 0;
+    std::vector<SensorData> dataBuffer;
 
 public:
     RemoteDataSource() : mqttClient(wifiClient) {}
 
-    // Initialize the remote data source
-    // This sets up the WiFi connection and MQTT client
     void begin()
     {
-        wifiClient.setInsecure(); // Skip TLS cert validation (not safe for prod)
-        mqttClient.setServer(host, port);
+        wifiClient.setInsecure(); // Accept all certificates (not safe for production)
         WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+        Serial.print("Connecting to WiFi");
         while (WiFi.status() != WL_CONNECTED)
         {
             delay(500);
@@ -37,8 +45,6 @@ public:
         Serial.println("\nWiFi connected.");
     }
 
-    // Connect to Azure IoT Hub
-    // This handles the MQTT connection to Azure IoT Hub
     bool connect()
     {
         if (mqttClient.connected())
@@ -61,37 +67,38 @@ public:
             Serial.print("Connection failed. State: ");
             Serial.println(mqttClient.state());
         }
-
         return connected;
     }
 
-    // Send sensor data to Azure IoT Hub
-    // This publishes the temperature and BPM data to the specified topic
-    bool sendSensorData(float temperature, float bpm)
+    void sendData(float pulseRate, float temperature, float spO2)
     {
         if (!mqttClient.connected())
         {
-            if (!connect())
-                return false;
+            Serial.println("MQTT not connected. Skipping send.");
+            return;
         }
-
-        String payload = "{\"temperature\":" + String(temperature, 2) + ",\"bpm\":" + String(bpm, 2) + "}";
-        bool published = mqttClient.publish(topic, payload.c_str());
-
-        if (published)
+        StaticJsonDocument<256> doc;
+        doc["deviceId"] = deviceId;
+        doc["pulseRate"] = pulseRate;
+        doc["temperature"] = temperature;
+        doc["sp02"] = spO2;
+        time_t now = time(nullptr);
+        char timestamp[32];
+        strftime(timestamp, sizeof(timestamp), "%Y-%m-%dT%H:%M:%SZ", gmtime(&now));
+        doc["timestamp"] = timestamp;
+        char payload[256];
+        serializeJson(doc, payload);
+        String topic = "devices/" + deviceId + "/messages/events/";
+        if (mqttClient.publish(topic.c_str(), payload))
         {
-            Serial.println("Data sent to Azure IoT Hub: " + payload);
+            Serial.println("Payload sent:");
+            Serial.println(payload);
         }
         else
         {
-            Serial.println("Failed to send data to Azure.");
+            Serial.println("Failed to publish message.");
         }
-
-        return published;
     }
 
-    void loop()
-    {
-        mqttClient.loop();
-    }
+private:
 };

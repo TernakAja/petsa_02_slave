@@ -52,7 +52,7 @@ public:
         tempBuffer[index] = sensorState.getTemperature();
         index++;
         // Check if we have enough data for a minute
-        if (index >= 10)
+        if (index >= 50)
         {
             // Calculate average for the minute
             bpmAvgPerMinute[minute] = OtherUtils::getAverage(bpmBuffer, 10);
@@ -69,7 +69,7 @@ public:
                 float finalBPM = OtherUtils::getAverage(bpmAvgPerMinute, 5);
                 float finalTemp = OtherUtils::getAverage(tempAvgPerMinute, 5);
 
-                remote.sendSensorData(finalTemp, finalBPM);
+                remote.sendData(finalBPM, finalTemp, 1.0);
 
                 active = false;
                 ESP.deepSleep(300e6); // Sleep for 5 minutes

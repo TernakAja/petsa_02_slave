@@ -1,6 +1,6 @@
 // wi-fi credentials
-#define WIFI_SSID "placeholder"
-#define WIFI_PASSWORD "placeholder"
+#define WIFI_SSID ""
+#define WIFI_PASSWORD ""
 
 // Device information
 #define DEVICE_NAME "PETSA-02"
@@ -14,8 +14,6 @@
 #define LOCATION "undefined"
 
 // Constants for Azure IoT Hub
-#define AZURE_IOT_HOST "placeholder" // Azure IoT Hub hostname
-#define AZURE_IOT_PORT 0             // Azure IoT Hub port for MQTT over TLS
-#define AZURE_IOT_DEVICE_ID "undefined"
-#define AZURE_IOT_SAS_TOKEN "placeholder"
-#define AZURE_IOT_TOPIC "placeholder"
+#define AZURE_IOT_HOST "ternakaja-iothub.azure-devices.net"
+#define AZURE_IOT_DEVICE_ID ""
+#define AZURE_IOT_SAS_TOKEN "SharedAccessSignature sr=ternakaja-iothub.azure-devices.net/devices/esp8266-device1&sig=abcDEF123%2F%3D&se=1724351999"

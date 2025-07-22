@@ -9,7 +9,28 @@ extern DeviceState deviceState;
 class OtherUtils
 {
 public:
-    void onDeviceStateChange();
+    static String getISOTime()
+    {
+        time_t now = time(nullptr);
+        struct tm *timeinfo = gmtime(&now);
+        char buf[25];
+        strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%SZ", timeinfo);
+        return String(buf);
+    }
+    void onDeviceStateChange()
+    {
+        if (Serial.available())
+        {
+            String command = Serial.readStringUntil('\n');
+            command.trim(); // remove any trailing newline or space
+
+            if (command.length() > 0)
+            {
+                deviceState.handleSerialCommand(command);
+            }
+        }
+    }
+
     static String getDeviceId()
     {
         return "PETSA-02-" + String(ESP.getChipId(), HEX); // or DEC for decimal
@@ -46,14 +67,14 @@ public:
 
     void taskMaster(float temperature, float bpm)
     {
-        //float batteryVolt = readBatteryVoltage();
-        //int batteryPercent = batteryPercentage(batteryVolt);
+        // float batteryVolt = readBatteryVoltage();
+        // int batteryPercent = batteryPercentage(batteryVolt);
 
         Serial.printf("Temperature: %.2f °C\n", temperature);
         if (bpm > 0.0f)
         {
             Serial.printf("Heart Rate: %.2f BPM\n", bpm);
         }
-        //Serial.printf("Battery: %.2f V (%d%%)\n", batteryVolt, batteryPercent);
+        // Serial.printf("Battery: %.2f V (%d%%)\n", batteryVolt, batteryPercent);
     }
 };
