@@ -22,11 +22,7 @@ Ticker jobTicker;
 // Setup
 void setup()
 {
-    Serial.begin(115200);
-    delay(1000); // Give serial time to initialize
-    Serial.flush();
-    Wire.begin();
-    Wire.setClock(400000);
+    utils.serialTimeInitialization();
 
     // Initial update after Wi-Fi connected
     deviceState.updateFromSystem();
@@ -57,5 +53,5 @@ void loop()
         sensor.readTemperature(),
         sensor.readHeartBeat());
 
-    delay(10);
+    delay(10); // delay biar ga bentrokan
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
+#include <Wire.h>
 
 // Forward declaration
 class DeviceState;
@@ -8,6 +9,14 @@ extern DeviceState deviceState;
 class OtherUtils
 {
 public:
+    void serialTimeInitialization()
+    {
+        Serial.begin(115200);
+        delay(1000); // Give serial time to initialize
+        Serial.flush();
+        Wire.begin();
+        Wire.setClock(400000);
+    }
     static String getISOTime()
     {
         time_t now = time(nullptr);

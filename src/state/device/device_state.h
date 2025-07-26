@@ -1,6 +1,7 @@
 #pragma once
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
+#include <ArduinoJson.h>
 #include "../../../lib/env.h"
 
 // Forward declaration
@@ -30,7 +31,7 @@ private:
     String lastSeen = "Not available";
     String connectionType = "Wi-Fi";
     String ipAddress = "Not available";
-    String macAddress = "Not available"; 
+    String macAddress = "Not available";
     String signalStrength = "Not available";
 
     String powerSource = "Battery";
@@ -54,16 +55,17 @@ public:
     void updateFromSystem();
     void updatePowerStatus();
     void printState();
+    void addStateToJson(JsonDocument &doc);
     void setListener(StateCallback callback);
     void handleSerialCommand(const String &command);
-    
+
     // Configuration management
     void handleWifiConfig(const String &command);
     void handleDeviceConfig(const String &command);
     void saveConfigToEEPROM();
     void loadConfigFromEEPROM();
     void resetConfigToDefaults();
-    
+
 private:
     void parseConfigJSON(const String &json);
     void initializeDefaults();
