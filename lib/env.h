@@ -1,12 +1,11 @@
 // wi-fi credentials
-#define WIFI_SSID ""
-#define WIFI_PASSWORD ""
+#define WIFI_SSID "HARUMI KOST Lantai 2"
+#define WIFI_PASSWORD "HARUMI1312"
 
 // Device information
 #define DEVICE_NAME "PETSA-02"
 #define DEVICE_TYPE "slave"
 #define DEVICE_REPO "petsa_02_slave"
-#define DEVICE_ID ""
 #define FIRMWARE_VERSION "v1.0.0"
 #define BOARD_TYPE "ESP8266 NodeMCU"
 #define MAC_ADDRESS "undefined"
@@ -14,6 +13,6 @@
 #define LOCATION "undefined"
 
 // Constants for Azure IoT Hub
-#define AZURE_IOT_HOST "ternakaja-iothub.azure-devices.net"
-#define AZURE_IOT_DEVICE_ID ""
-#define AZURE_IOT_SAS_TOKEN "SharedAccessSignature sr=ternakaja-iothub.azure-devices.net/devices/esp8266-device1&sig=abcDEF123%2F%3D&se=1724351999"
+#define AZURE_IOT_HOST "Moorgan-IoT-Hub.azure-devices.net"
+#define AZURE_PRIMARY_KEY "XdH2RhlnPiJeG5f4TpAphsxYyV8us+BqQLflh3TGZ8Q="
+#define AZURE_SHARED_KEY "XdH2RhlnPiJeG5f4TpAphsxYyV8us+BqQLflh3TGZ8Q="

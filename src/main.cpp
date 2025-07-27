@@ -30,6 +30,7 @@ void setup()
     // Init sensors & modules
     sensor.begin();
     remote.begin();
+    remote.connect();
     jobState.begin();
     jobState.startJob();
 
