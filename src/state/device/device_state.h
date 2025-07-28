@@ -4,8 +4,9 @@
 #include <ArduinoJson.h>
 #include "../../../lib/env.h"
 
-// Forward declaration
+// Forward declarations
 class OtherUtils;
+class RemoteDataSource;
 
 // Callback type
 typedef void (*StateCallback)();
@@ -65,6 +66,10 @@ public:
     void saveConfigToEEPROM();
     void loadConfigFromEEPROM();
     void resetConfigToDefaults();
+
+    // Deep sleep management
+    void prepareForDeepSleep(RemoteDataSource &remote);
+    void enterDeepSleep(unsigned long sleepTimeUs = 300e6); // Default 5 minutes
 
 private:
     void parseConfigJSON(const String &json);

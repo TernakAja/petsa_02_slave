@@ -1,5 +1,6 @@
 #include "device_state.h"
 #include "../../utils/others.h"
+#include "../../data/remote_datasource.h"
 #include <EEPROM.h>
 #include <ArduinoJson.h>
 
@@ -403,4 +404,41 @@ void DeviceState::resetConfigToDefaults()
     saveConfigToEEPROM();
 
     Serial.println("[CONFIG] SUCCESS: Configuration reset to defaults");
+}
+
+// Deep sleep management functions
+void DeviceState::prepareForDeepSleep(RemoteDataSource &remote)
+{
+    Serial.println("[DEVICE] Preparing for deep sleep...");
+    
+    // Update device status
+    currentStatus = "Entering Sleep";
+    
+    // Clean disconnect MQTT before deep sleep to prevent crashes
+    Serial.println("[DEVICE] Disconnecting MQTT...");
+    remote.disconnect();
+    delay(100);
+    
+    // Disconnect WiFi properly
+    Serial.println("[DEVICE] Disconnecting WiFi...");
+    WiFi.disconnect(true);
+    delay(100);
+    
+    // Additional cleanup time
+    Serial.println("[DEVICE] Entering deep sleep in 3 seconds...");
+    delay(3000); // Give time for everything to shut down cleanly
+    
+    // Now it's safe to enter deep sleep
+    enterDeepSleep(10e6);
+}
+
+void DeviceState::enterDeepSleep(unsigned long sleepTimeUs)
+{
+    Serial.printf("[DEVICE] Entering deep sleep for %lu seconds...\n", sleepTimeUs / 1000000);
+    
+    // Update status before sleep
+    currentStatus = "Deep Sleep";
+    
+    // Enter deep sleep
+    ESP.deepSleep(sleepTimeUs);
 }

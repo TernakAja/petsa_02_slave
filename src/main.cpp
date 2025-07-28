@@ -15,6 +15,9 @@ Sensor sensor;
 RemoteDataSource remote;
 OtherUtils utils;
 
+// External references
+extern JobState jobState;
+
 // Ticker
 Ticker ticker;
 Ticker jobTicker;
@@ -30,22 +33,40 @@ void setup()
     // Init sensors & modules
     sensor.begin();
     remote.begin();
+    delay(1000); // Wait for Wi-Fi connection
     remote.connect();
     jobState.begin();
     jobState.startJob();
 
-    // Debug Temprature
-    ticker.attach(6, []()
-                  { utils.taskMaster(sensorState.getTemperature(), sensorState.getBPM()); });
-
     // Job to Send Data to Azure
     jobTicker.attach(1.2, []()
-                     { jobState.tick(remote); });
+                    { 
+                         // Only tick if job is active and not ready for sleep
+                        if (!jobState.isReadyForSleep()) {
+                            jobState.tick(remote); 
+                        }
+                    });
 }
 
 // Main Loop
 void loop()
 {
+    // Check if job is ready for deep sleep
+    if (jobState.isReadyForSleep()) {
+        // Stop all tickers before deep sleep
+        Serial.println("Stopping tickers...");
+        jobTicker.detach();
+        ticker.detach();
+        delay(100);
+        
+        // Prepare for deep sleep
+        jobState.prepareForDeepSleep(remote);
+        // This line should never be reached as ESP.deepSleep() resets the device
+    }
+    
+    // Handle MQTT connection and messages
+    remote.loop();
+    
     // Detects Command from Serial
     utils.onDeviceStateChange();
 

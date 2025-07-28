@@ -1,6 +1,6 @@
 // wi-fi credentials
-#define WIFI_SSID "HARUMI KOST Lantai 2"
-#define WIFI_PASSWORD "HARUMI1312"
+#define WIFI_SSID ""
+#define WIFI_PASSWORD ""
 
 // Device information
 #define DEVICE_NAME "PETSA-02"
@@ -13,6 +13,6 @@
 #define LOCATION "undefined"
 
 // Constants for Azure IoT Hub
-#define AZURE_IOT_HOST "Moorgan-IoT-Hub.azure-devices.net"
+#define AZURE_IOT_HOST "moorgan-iot-hub.azure-devices.net"
 #define AZURE_PRIMARY_KEY "XdH2RhlnPiJeG5f4TpAphsxYyV8us+BqQLflh3TGZ8Q="
 #define AZURE_SHARED_KEY "XdH2RhlnPiJeG5f4TpAphsxYyV8us+BqQLflh3TGZ8Q="
