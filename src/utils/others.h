@@ -3,9 +3,6 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-// Forward declaration
-class DeviceState;
-extern DeviceState deviceState;
 class OtherUtils
 {
 public:
@@ -34,9 +31,30 @@ public:
 
             if (command.length() > 0)
             {
-                // Use the extern deviceState variable
-                ::deviceState.handleSerialCommand(command);
+                // Forward the command to device state handler if available
+                // Note: This requires DeviceState to be fully defined where this is called
+                handleDeviceCommand(command);
             }
+        }
+    }
+    
+    // Static function to handle device commands - can be overridden by including DeviceState
+    static void handleDeviceCommand(const String& command)
+    {
+        Serial.println("Device command received: " + command);
+        // Basic command handling - can be extended
+        if (command == "status") {
+            Serial.println("Device Status: Online");
+        } else if (command == "reset") {
+            Serial.println("Resetting device...");
+            ESP.restart();
+        } else if (command == "info") {
+            Serial.println("Device ID: " + getDeviceId());
+            Serial.printf("Free Heap: %d bytes\n", ESP.getFreeHeap());
+            Serial.printf("Uptime: %lu ms\n", millis());
+        } else {
+            Serial.println("Unknown command: " + command);
+            Serial.println("Available commands: status, reset, info");
         }
     }
 

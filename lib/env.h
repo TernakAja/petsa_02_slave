@@ -1,6 +1,6 @@
 // wi-fi credentials
-#define WIFI_SSID ""
-#define WIFI_PASSWORD ""
+#define WIFI_SSID "HARUMI KOST Lantai 2"
+#define WIFI_PASSWORD "HARUMI1312"
 
 // Device information
 #define DEVICE_NAME "PETSA-02"

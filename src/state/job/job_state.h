@@ -88,8 +88,7 @@ public:
                 // Attempt to connect and send data with 10 second timeout
                 while (millis() - startTime < 10000 && !dataSent) {
                     if (remote.connect()) {
-                        remote.sendData(finalBPM, finalTemp, 1.0);
-                        dataSent = true;
+                        dataSent = remote.sendData(finalBPM, finalTemp, 1.0);                        
                         Serial.println("Data sent successfully");
                     } else {
                         Serial.println("Failed to connect, retrying...");

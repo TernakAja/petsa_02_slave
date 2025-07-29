@@ -19,12 +19,13 @@ public:
         if (hasChanged && onChange != nullptr)
         {
             onChange();
-        }
-        //Serial.printf("Temperature: %.2f\tBPM: %2.f\n", newTemp, newBpm);
+        }        
     }
 
     float getBPM() const { return bpm; }
     float getTemperature() const { return temperature; }
+
+    
 
     void setListener(StateCallback callback)
     {

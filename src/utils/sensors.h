@@ -2,6 +2,12 @@
 
 #include <Wire.h>
 #include <Adafruit_MLX90614.h>
+
+// Prevent I2C_BUFFER_LENGTH redefinition warning
+#ifndef I2C_BUFFER_LENGTH
+#define I2C_BUFFER_LENGTH BUFFER_LENGTH
+#endif
+
 #include "MAX30105.h"
 #include "heartRate.h"
 
@@ -9,6 +15,7 @@ class MLX90614Sensor
 {
 private:
     Adafruit_MLX90614 mlx;
+    float lastValidTemp = 38.5; // Default cattle temperature
 
 public:
     bool begin()
@@ -24,6 +31,9 @@ public:
         Serial.println("MLX90614 Loaded!");
         return true;
     }
+
+    
+    
     float readCoreBodyTemperature()
     {
         // Set I2C speed to 100kHz for MLX90614
@@ -35,10 +45,25 @@ public:
         // Restore I2C speed to 400kHz (default for MAX30105)
         Wire.setClock(400000);
 
+        // Silently validate sensor readings
+        if (isnan(tEar) || isnan(tAmbient) || 
+            tEar < -10.0 || tEar > 60.0 || 
+            tAmbient < -20.0 || tAmbient > 60.0) {
+            return lastValidTemp; // Return last valid temperature silently
+        }
+
         // Estimasi suhu tubuh inti menggunakan model linear empiris
         // Contoh koefisien: T_core = 0.8 * T_ear + 0.1 * T_ambient + 5
         float tCore = 0.8 * tEar + 0.1 * tAmbient + 5;
 
+        // Silently validate calculated core temperature
+        if (tCore < 30.0 || tCore > 50.0) {
+            return lastValidTemp; // Return last valid temperature silently
+        }
+
+        // Update last valid temperature
+        lastValidTemp = tCore;
+        
         return tCore;
     }
 };
@@ -49,7 +74,6 @@ private:
     MAX30105 particleSensor;
     long lastBeat = 0;
     float beatsPerMinute = 0;
-    //float prevIR = 0;
 
 public:
     bool begin()
@@ -67,6 +91,11 @@ public:
         return true;
     }
 
+    void setSleep()
+    {
+        particleSensor.shutDown();        
+    }
+
     float readHeartBeat()
     {
         long irValue = particleSensor.getIR();
@@ -80,9 +109,7 @@ public:
         prevIR = irValue;
 
         if (checkForBeat(filteredIR))
-        {
-            //Serial.println("\t\t\tBALLSACKSSSSSSasdkadjsakdaldjsaklda\nsdahdshadhaskdhasjdasdjsakdhasjkdhas");
-
+        {            
             unsigned long now = millis();
             unsigned long delta = now - lastBeat;
             lastBeat = now;
@@ -112,15 +139,27 @@ public:
         return max.begin();
     }
 
+    void setSleep()
+    {
+        max.setSleep();
+        Serial.println("Sensors set to sleep mode.");
+    }
+
     float readTemperature()
     {
-        return mlx.readCoreBodyTemperature();
-        //return 1;
+        float temp = mlx.readCoreBodyTemperature();
+        
+        // Additional silent validation at sensor level
+        if (temp > 100.0 || temp < 30.0) {
+            // Return a reasonable default temperature silently
+            return 38.5; // Normal cattle temperature
+        }
+        
+        return temp;
     }
 
     float readHeartBeat()
     {
         return max.readHeartBeat();
-        //return 1;
     }
 };

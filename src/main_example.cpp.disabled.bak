@@ -1,0 +1,124 @@
+/*
+ * Contoh penggunaan RemoteDataSource yang sudah diperbaiki
+ * 
+ * Features yang sudah ditambahkan:
+ * ✅ Direct Method Response ke Azure IoT Hub
+ * ✅ SAS Token Auto-Refresh
+ * ✅ Retry Queue untuk data yang gagal terkirim
+ * ✅ Device Auto-Creation via backend API
+ * ✅ Enhanced error handling dan logging
+ */
+
+#include <Arduino.h>
+#include <ESP8266WiFi.h>
+#include "data/remote_datasource.h"
+#include "utils/others.h"
+// #include "state/sensor/sensor_state.h"    // Uncomment jika diperlukan
+// #include "state/device/device_state.h"    // Uncomment jika diperlukan
+
+RemoteDataSource remoteData;
+OtherUtils utils;
+// SensorState sensorState;  // Uncomment jika ada
+// DeviceState deviceState;  // Uncomment jika ada
+
+void setup() {
+    // Initialize serial and basic hardware
+    utils.serialTimeInitialization();
+    
+    Serial.println("=== TernakAja Livestock Monitoring System ===");
+    Serial.println("Device ID: " + utils.getDeviceId());
+    
+    // Initialize LED for direct method testing
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, HIGH); // Turn off initially (ESP8266 LED is active LOW)
+    
+    // Initialize remote data connection
+    Serial.println("Initializing remote data connection...");
+    remoteData.begin();
+    
+    // Attempt to connect to Azure IoT Hub
+    if (remoteData.connect()) {
+        Serial.println("✅ Connected to Azure IoT Hub successfully!");
+    } else {
+        Serial.println("❌ Failed to connect to Azure IoT Hub");
+        Serial.println("Will retry automatically in main loop...");
+    }
+}
+
+void loop() {
+    // Must call this regularly to maintain MQTT connection and process callbacks
+    remoteData.loop();
+    
+    // Send sensor data every 30 seconds
+    static unsigned long lastSensorRead = 0;
+    unsigned long now = millis();
+    
+    if (now - lastSensorRead > 30000) { // 30 seconds interval
+        lastSensorRead = now;
+        
+        // Read sensor data (replace with actual sensor readings)
+        float temperature = 38.5 + random(-20, 20) / 10.0; // Simulate 37.5-39.5°C
+        float pulseRate = 70 + random(-10, 10);            // Simulate 60-80 BPM  
+        float spO2 = 98 + random(-3, 2);                   // Simulate 95-100%
+        
+        Serial.printf("\n📊 Sensor Reading - Temp: %.1f°C, Pulse: %.0f BPM, SpO2: %.0f%%\n", 
+                     temperature, pulseRate, spO2);
+                     
+        // Display using utils task master
+        utils.taskMaster(temperature, pulseRate);
+        
+        // Send data to Azure IoT Hub
+        if (remoteData.isConnected()) {
+            bool success = remoteData.sendData(pulseRate, temperature, spO2);
+            if (success) {
+                Serial.println("✅ Data sent successfully");
+            } else {
+                Serial.println("⚠️ Data send failed (added to retry queue)");
+            }
+        } else {
+            Serial.println("⚠️ Not connected to Azure IoT Hub, skipping data send");
+        }
+    }
+    
+    // Handle serial commands
+    utils.onDeviceStateChange();
+    
+    // Monitor connection status
+    static unsigned long lastStatusPrint = 0;
+    if (now - lastStatusPrint > 60000) { // Print status every minute
+        lastStatusPrint = now;
+        Serial.printf("\n🔗 Connection Status: %s\n", 
+                     remoteData.isConnected() ? "Connected" : "Disconnected");
+        Serial.printf("📡 WiFi Status: %s\n", 
+                     WiFi.status() == WL_CONNECTED ? "Connected" : "Disconnected");
+        Serial.printf("🔋 Battery: %.2fV (%d%%)\n", 
+                     utils.readBatteryVoltage(), 
+                     utils.batteryPercentage(utils.readBatteryVoltage()));
+    }
+    
+    delay(1000); // Small delay to prevent watchdog reset
+}
+
+/*
+ * Direct Methods yang bisa dipanggil dari Azure IoT Hub:
+ * 
+ * 1. Method: "on" 
+ *    - Turns on LED (sets LED_BUILTIN LOW)
+ *    - Response: {"result":"LED turned ON"}
+ * 
+ * 2. Method: "off"
+ *    - Turns off LED (sets LED_BUILTIN HIGH) 
+ *    - Response: {"result":"LED turned OFF"}
+ * 
+ * 3. Method: "getStatus"
+ *    - Returns device status
+ *    - Response: {"status":"online","temperature":38.5,"heartRate":70}
+ * 
+ * 4. Method: "setSleepInterval"
+ *    - Payload: {"seconds":1800}
+ *    - Response: {"result":"Sleep interval set to 1800 seconds"}
+ * 
+ * Testing Direct Methods:
+ * - From Azure Portal: IoT Hub > Devices > [your device] > Direct Method
+ * - From Azure CLI: az iot hub invoke-device-method --device-id "1" --method-name "on" --hub-name "your-hub"
+ */
