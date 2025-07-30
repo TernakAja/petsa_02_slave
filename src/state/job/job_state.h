@@ -19,14 +19,14 @@ private:
     float tempAvgPerMinute[5];
 
     bool active = false;
-    
+
     // Add reference to sensor state and device state
-    SensorState& sensorState;
-    DeviceState& deviceState;
+    SensorState &sensorState;
+    DeviceState &deviceState;
 
 public:
     // Constructor to initialize sensor state and device state references
-    JobState(SensorState& sensor, DeviceState& device) : sensorState(sensor), deviceState(device) {}
+    JobState(SensorState &sensor, DeviceState &device) : sensorState(sensor), deviceState(device) {}
 
     // begin the job state
     void begin() { reset(); }
@@ -61,7 +61,7 @@ public:
         tempBuffer[index] = sensorState.getTemperature();
         index++;
         Serial.printf("BPM: %.2f, Temp: %.2f\n", bpmBuffer[index - 1], tempBuffer[index - 1]);
-        
+
         // Check if we have enough data for a minute
         if (index >= 50)
         {
@@ -75,28 +75,34 @@ public:
             minute++;
 
             // Final calculation and send data
-            if (minute >= 1)
+            int nOfMinute = 1;
+            if (minute >= nOfMinute)
             {
-                float finalBPM = OtherUtils::getAverage(bpmAvgPerMinute, 5);
-                float finalTemp = OtherUtils::getAverage(tempAvgPerMinute, 5);
+                float finalBPM = OtherUtils::getAverage(bpmAvgPerMinute, nOfMinute);
+                float finalTemp = OtherUtils::getAverage(tempAvgPerMinute, nOfMinute);
                 Serial.printf("Final BPM: %.2f, Final Temp: %.2f\n", finalBPM, finalTemp);
-                
+
                 // Try to send data with timeout protection
                 unsigned long startTime = millis();
                 bool dataSent = false;
-                
+
                 // Attempt to connect and send data with 10 second timeout
-                while (millis() - startTime < 10000 && !dataSent) {
-                    if (remote.connect()) {
-                        dataSent = remote.sendData(finalBPM, finalTemp, 1.0);                        
+                while (millis() - startTime < 10000 && !dataSent)
+                {
+                    if (remote.connect())
+                    {
+                        dataSent = remote.sendData(finalBPM, finalTemp, 98.0);
                         Serial.println("Data sent successfully");
-                    } else {
+                    }
+                    else
+                    {
                         Serial.println("Failed to connect, retrying...");
                         delay(1000);
                     }
                 }
-                
-                if (!dataSent) {
+
+                if (!dataSent)
+                {
                     Serial.println("Failed to send data within timeout");
                 }
 
@@ -109,16 +115,19 @@ public:
     }
 
     // Check if ready for deep sleep
-    bool isReadyForSleep() const {
+    bool isReadyForSleep() const
+    {
         return readyForSleep;
     }
 
     // Prepare for deep sleep using DeviceState (to be called from main loop)
-    void prepareForDeepSleep(RemoteDataSource &remote) {
-        if (!readyForSleep) return;
-        
+    void prepareForDeepSleep(RemoteDataSource &remote)
+    {
+        if (!readyForSleep)
+            return;
+
         Serial.println("[JOB] Job complete, delegating sleep preparation to DeviceState...");
-        
+
         // Use DeviceState to handle the deep sleep preparation
         deviceState.prepareForDeepSleep(remote);
         // This line should never be reached as ESP.deepSleep() resets the device

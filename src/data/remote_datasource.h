@@ -59,6 +59,7 @@ private:
 public:
     RemoteDataSource() : mqttClient(wifiClient)
     {
+
         mqttClient.setCallback(mqttCallback);
         mqttClient.setBufferSize(256); // Reduced buffer size to prevent stack overflow
         instance = this;               // Set static instance for callback access
@@ -86,15 +87,13 @@ public:
         {
             Serial.println("\nWiFi connected.");
             Serial.printf("IP address: %s\n", WiFi.localIP().toString().c_str());
+            syncTime();
         }
         else
         {
             Serial.println("\nWiFi connection failed!");
             return;
         }
-
-        // Skip NTP time synchronization to save stack space
-        Serial.println("Skipping NTP sync to save stack space");
 
         // Generate fresh SAS token with stack monitoring
         Serial.printf("Free stack before SAS token: %d bytes\n", ESP.getFreeContStack());
@@ -103,6 +102,29 @@ public:
         // Set token expiry time (refresh 5 minutes before actual expiry)
         // Assuming token valid for 3600 seconds (1 hour)
         tokenExpiryTime = millis() + 3300UL * 1000UL; // Refresh 5 minutes early
+    }
+
+    void syncTime()
+    {
+        configTime(0, 0, "pool.ntp.org", "time.nist.gov");
+        Serial.print("Waiting for NTP time sync...");
+        time_t now = time(nullptr);
+        while (now < 8 * 3600 * 2)
+        { // Wait until we get a valid time
+            delay(500);
+            Serial.print(".");
+            now = time(nullptr);
+        }
+        Serial.println(" done!");
+    }
+
+    String getTimestamp()
+    {
+        time_t now = time(nullptr);
+        struct tm *timeinfo = gmtime(&now);
+        char buf[30];
+        strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%SZ", timeinfo);
+        return String(buf);
     }
 
     bool connect(int maxRetries = 3)
@@ -148,7 +170,7 @@ public:
 
         mqttClient.setServer(AZURE_IOT_HOST, 8883);
         mqttClient.setKeepAlive(60);
-        mqttClient.setSocketTimeout(15); // 15 second socket timeout
+        mqttClient.setSocketTimeout(60); // 15 second socket timeout
 
         for (int attempt = 1; attempt <= maxRetries; attempt++)
         {
@@ -345,21 +367,6 @@ public:
 
     bool sendData(float pulseRate, float temperature, float spO2)
     {
-        // Validate and fix sensor data silently
-        if (temperature < 30.0 || temperature > 50.0 || isnan(temperature))
-        {
-            temperature = 38.5; // Default cattle temperature
-        }
-
-        if (pulseRate < 20.0 || pulseRate > 200.0 || isnan(pulseRate))
-        {
-            pulseRate = 70.0; // Default cattle pulse rate
-        }
-
-        if (spO2 < 80.0 || spO2 > 100.0 || isnan(spO2))
-        {
-            spO2 = 98.0; // Default SpO2
-        }
 
         // Create payload for logging and tracking
         char logPayload[80];
@@ -425,18 +432,14 @@ private:
         doc["pulseRate"] = pulseRate;
         doc["temperature"] = temperature;
         doc["sp02"] = spO2;
-
         // Add timestamp
-        time_t now = time(nullptr);
-        char timestamp[32];
-        strftime(timestamp, sizeof(timestamp), "%Y-%m-%dT%H:%M:%SZ", gmtime(&now));
-        doc["timestamp"] = timestamp;
+        doc["timestamp"] = getTimestamp();
 
         char payload[256]; // Increased buffer size to accommodate timestamp
         serializeJson(doc, payload);
 
         // MQTT topic for telemetry (device-to-cloud messages)
-        String topic = "devices/" + deviceId + "/messages/events/";
+        String topic = "devices/" + String(deviceId) + "/messages/events/";
 
         Serial.printf("[MQTT] Publishing to topic: %s\n", topic.c_str());
         Serial.printf("[MQTT] Payload: %s\n", payload);
@@ -451,7 +454,7 @@ private:
 
         // PubSubClient doesn't support QoS directly, but we can still track delivery
         // by monitoring connection status and implementing application-level ACK
-        bool success = mqttClient.publish(topic.c_str(), payload, false); // retained = false
+        bool success = mqttClient.publish(topic.c_str(), payload);
 
         if (success)
         {
